@@ -5,21 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Phân tích Tác động COVID-19 đến Kinh tế{% endblock %}</title>
     
-    <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     
-    <!-- Plotly -->
     <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 
     
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
             <div class="nav-brand">
@@ -37,19 +32,16 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
     <main class="main-content">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <p>&copy; 2024 Phân tích Dữ liệu COVID-19 & Kinh tế. Dự án Khoa học Dữ liệu.</p>
         </div>
     </footer>
 
-    <!-- JavaScript - CHỈ 1 FILE DUY NHẤT -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

@@ -13,7 +13,6 @@ def collect_economy_data():
     
     np.random.seed(42)
     
-    # Giả lập dữ liệu kinh tế với xu hướng thực tế
     base_unemployment = 2.5
     unemployment_rates = []
     gdp_growths = []
@@ -67,13 +66,10 @@ def collect_economy_data():
         # Retail sales (tỷ VND/tháng)
         retail_base = 50000
         if date.year == 2020:
-            # Giảm 30-40% trong 2020
             retail = retail_base * 0.65 + np.random.normal(0, 3000)
         elif date.year == 2021:
-            # Hồi phục 80% trong 2021
             retail = retail_base * 0.85 + np.random.normal(0, 4000)
         else:
-            # Vượt mức trước dịch 2022-2023
             retail = retail_base * 1.1 + np.random.normal(0, 5000)
         
         retail_sales.append(max(25000, retail))
@@ -107,12 +103,9 @@ def collect_covid_data():
     cumulative_recovered = 0
     
     for i, date in enumerate(dates):
-        # Mô phỏng các đợt dịch
         if date.year == 2020:
-            # Đợt đầu: ít ca
             daily_cases = np.random.poisson(50)
         elif date.year == 2021:
-            # Đợt 2-3-4: tăng mạnh
             if date.month <= 4:
                 daily_cases = np.random.poisson(200)
             elif date.month <= 9:
@@ -120,22 +113,18 @@ def collect_covid_data():
             else:
                 daily_cases = np.random.poisson(4000)
         elif date.year == 2022:
-            # Omicron: nhiều ca nhưng giảm dần
             if date.month <= 3:
                 daily_cases = np.random.poisson(15000)
             else:
                 daily_cases = np.random.poisson(2000)
         else:
-            # 2023: ổn định
             daily_cases = np.random.poisson(500)
         
         cumulative_cases += daily_cases
         
-        # Tử vong: 1-2% số ca
         daily_deaths = int(daily_cases * np.random.uniform(0.01, 0.02))
         cumulative_deaths += daily_deaths
         
-        # Hồi phục: 90-95% số ca (sau 14 ngày)
         if i > 14:
             daily_recovered = int(cases_list[i-14] * np.random.uniform(0.90, 0.95))
             cumulative_recovered += daily_recovered
@@ -154,21 +143,17 @@ def collect_covid_data():
     return covid_df
 
 if __name__ == "__main__":
-    print("🔄 Đang thu thập dữ liệu...")
+    print(" Đang thu thập dữ liệu...")
     
     # Tạo thư mục nếu chưa có
     os.makedirs('data/raw', exist_ok=True)
     
-    # Thu thập dữ liệu kinh tế
-    print("\n📊 Thu thập dữ liệu kinh tế...")
     economy_df = collect_economy_data()
     economy_df.to_csv('data/raw/economy_data.csv', index=False)
-    print(f"✅ Đã lưu {len(economy_df)} bản ghi kinh tế vào data/raw/economy_data.csv")
+    print(f" Đã lưu {len(economy_df)} bản ghi kinh tế vào data/raw/economy_data.csv")
     
-    # Thu thập dữ liệu COVID
-    print("\n🦠 Thu thập dữ liệu COVID-19...")
     covid_df = collect_covid_data()
     covid_df.to_csv('data/raw/covid_data.csv', index=False)
-    print(f"✅ Đã lưu {len(covid_df)} bản ghi COVID vào data/raw/covid_data.csv")
+    print(f"Đã lưu {len(covid_df)} bản ghi COVID vào data/raw/covid_data.csv")
     
-    print("\n✨ Hoàn thành thu thập dữ liệu!")
+    print("\n Hoàn thành thu thập dữ liệu!")

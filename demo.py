@@ -44,17 +44,14 @@ def generate_markdown_report():
     with open('READ_PROFILE.md', 'r', encoding='utf-8') as f:
         template = f.read()
     
-    # Replace placeholders
     for key, value in insights.items():
         template = template.replace(f'{{insights.{key}}}', str(value))
     
-    # Replace -X%, +Y% placeholders
     template = template.replace('-X%', f"{insights['min_gdp_growth']}%")
     template = template.replace('+Y%', f"+{insights['max_gdp_growth']}%")
     template = template.replace('(Q2/2020)', f"({insights['min_gdp_date']})")
     template = template.replace('(Q3/2021)', f"({insights['max_gdp_date']})")
     
-    # Write output
     with open('REPORT_FINAL.md', 'w', encoding='utf-8') as f:
         f.write(template)
     

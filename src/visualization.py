@@ -19,13 +19,11 @@ class CovidEconomyVisualizer:
             self.covid_data = pd.read_csv('data/processed/covid_data_processed.csv')
             self.economy_data = pd.read_csv('data/processed/economy_data_processed.csv')
             
-            # Convert date columns to datetime
             if 'date' in self.covid_data.columns:
                 self.covid_data['date'] = pd.to_datetime(self.covid_data['date'])
             if 'date' in self.economy_data.columns:
                 self.economy_data['date'] = pd.to_datetime(self.economy_data['date'])
             
-            # Merge data on date
             if 'date' in self.covid_data.columns and 'date' in self.economy_data.columns:
                 self.merged_data = pd.merge(
                     self.covid_data, 
@@ -129,7 +127,6 @@ class CovidEconomyVisualizer:
         fig = go.Figure()
         
         if 'cases' in self.merged_data.columns and 'unemployment_rate' in self.merged_data.columns:
-            # Calculate correlation
             correlation = self.merged_data['cases'].corr(self.merged_data['unemployment_rate'])
             
             fig.add_trace(go.Scatter(
@@ -164,7 +161,6 @@ class CovidEconomyVisualizer:
         fig = go.Figure()
         
         if 'cases' in self.merged_data.columns and 'gdp_growth' in self.merged_data.columns:
-            # Calculate correlation
             correlation = self.merged_data['cases'].corr(self.merged_data['gdp_growth'])
             
             fig.add_trace(go.Scatter(
@@ -196,10 +192,8 @@ class CovidEconomyVisualizer:
       if self.merged_data is None:
           return None
       
-      # Select specific columns for better readability
       selected_cols = []
       
-      # Add available columns in a specific order
       priority_cols = ['cases', 'deaths', 'unemployment_rate', 'gdp_growth', 'stock_index', 'retail_sales']
       
       for col in priority_cols:
@@ -207,13 +201,10 @@ class CovidEconomyVisualizer:
               selected_cols.append(col)
       
       if not selected_cols:
-          # Fallback to numeric columns
           selected_cols = self.merged_data.select_dtypes(include=['float64', 'int64']).columns.tolist()
       
-      # Calculate correlation matrix
       corr_matrix = self.merged_data[selected_cols].corr()
       
-      # Create readable labels
       label_mapping = {
           'cases': 'Số ca COVID',
           'deaths': 'Tử vong',
@@ -226,7 +217,6 @@ class CovidEconomyVisualizer:
       
       readable_labels = [label_mapping.get(col, col) for col in corr_matrix.columns]
       
-      # Create heatmap with improved styling
       fig = go.Figure(data=go.Heatmap(
           z=corr_matrix.values,
           x=readable_labels,
@@ -276,7 +266,6 @@ class CovidEconomyVisualizer:
         if self.merged_data is None:
             return None
         
-        # Create subplot with secondary y-axis
         fig = make_subplots(
             rows=2, cols=1,
             subplot_titles=('COVID Cases vs Unemployment Rate', 'COVID Cases vs GDP Growth'),
@@ -285,7 +274,6 @@ class CovidEconomyVisualizer:
         )
         
         if 'date' in self.merged_data.columns:
-            # Row 1: COVID Cases vs Unemployment
             if 'cases' in self.merged_data.columns:
                 fig.add_trace(
                     go.Scatter(x=self.merged_data['date'], y=self.merged_data['cases'],
@@ -300,7 +288,6 @@ class CovidEconomyVisualizer:
                     row=1, col=1, secondary_y=True
                 )
             
-            # Row 2: COVID Cases vs GDP Growth
             if 'cases' in self.merged_data.columns:
                 fig.add_trace(
                     go.Scatter(x=self.merged_data['date'], y=self.merged_data['cases'],
@@ -315,7 +302,6 @@ class CovidEconomyVisualizer:
                     row=2, col=1, secondary_y=True
                 )
         
-        # Update axes labels
         fig.update_xaxes(title_text="Thời gian", row=1, col=1)
         fig.update_xaxes(title_text="Thời gian", row=2, col=1)
         
@@ -356,7 +342,6 @@ class CovidEconomyVisualizer:
             stats['max_gdp_growth'] = float(self.merged_data['gdp_growth'].max())
             stats['min_gdp_growth'] = float(self.merged_data['gdp_growth'].min())
         
-        # Calculate correlations
         if 'cases' in self.merged_data.columns and 'unemployment_rate' in self.merged_data.columns:
             stats['corr_cases_unemployment'] = float(
                 self.merged_data['cases'].corr(self.merged_data['unemployment_rate'])
@@ -369,7 +354,6 @@ class CovidEconomyVisualizer:
         
         return stats
 
-# Helper functions for easy use
 def create_all_visualizations():
     """Tạo tất cả các biểu đồ"""
     visualizer = CovidEconomyVisualizer()
@@ -389,7 +373,6 @@ def create_all_visualizations():
     }
 
 if __name__ == "__main__":
-    # Test visualization
     visualizer = CovidEconomyVisualizer()
     if visualizer.load_data():
         print("Data loaded successfully!")

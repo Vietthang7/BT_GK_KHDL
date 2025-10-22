@@ -1,5 +1,3 @@
-
-// Smooth scroll
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
@@ -10,12 +8,10 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Loading animation
 window.addEventListener('load', () => {
     document.body.classList.add('loaded');
 });
 
-// Add animation when elements come into view
 const observerOptions = {
     threshold: 0.1,
     rootMargin: '0px 0px -50px 0px'
@@ -33,35 +29,27 @@ document.querySelectorAll('.feature-card, .metric-card, .stat-card').forEach(el 
     observer.observe(el);
 });
 
-// Console greeting
-console.log('%c🎓 Dự án Phân tích Dữ liệu - COVID-19 & Kinh tế', 'color: #667eea; font-size: 20px; font-weight: bold;');
-console.log('%cPhát triển bởi nhóm Khoa học Dữ liệu', 'color: #6b7280; font-size: 14px;');
 
 
 
-// Check if we're on dashboard page
+
 if (document.querySelector('.dashboard-page')) {
     initDashboard();
 }
 
 function initDashboard() {
-    // Tab switching
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            // Remove active class
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             
-            // Add active class
             btn.classList.add('active');
             document.getElementById(`${btn.dataset.tab}-tab`).classList.add('active');
             
-            // Load charts for active tab
             loadChartsForTab(btn.dataset.tab);
         });
     });
 
-    // Load initial charts
     loadChartsForTab('economy');
 }
 
@@ -83,7 +71,6 @@ function loadChartsForTab(tab) {
 
 
 
-// Economy Time Series
 function loadEconomyTimeseries() {
     const metricSelect = document.getElementById('economy-metric');
     if (!metricSelect) return;
@@ -98,12 +85,10 @@ function loadEconomyTimeseries() {
         .catch(err => console.error('Error loading economy timeseries:', err));
 }
 
-// Add event listener for economy metric selector
 if (document.getElementById('economy-metric')) {
     document.getElementById('economy-metric').addEventListener('change', loadEconomyTimeseries);
 }
 
-// Economy Distribution
 function loadEconomyDistribution() {
     const metricSelect = document.getElementById('distribution-metric');
     const typeSelect = document.getElementById('distribution-type');
@@ -120,7 +105,6 @@ function loadEconomyDistribution() {
         .catch(err => console.error('Error loading economy distribution:', err));
 }
 
-// Add event listeners
 if (document.getElementById('distribution-metric')) {
     document.getElementById('distribution-metric').addEventListener('change', loadEconomyDistribution);
 }
@@ -128,7 +112,6 @@ if (document.getElementById('distribution-type')) {
     document.getElementById('distribution-type').addEventListener('change', loadEconomyDistribution);
 }
 
-// Economy Heatmap
 function loadEconomyHeatmap() {
     fetch('/api/economy/heatmap')
         .then(res => res.json())
@@ -138,7 +121,6 @@ function loadEconomyHeatmap() {
         .catch(err => console.error('Error loading economy heatmap:', err));
 }
 
-// Economy Sunburst
 function loadEconomySunburst() {
     fetch('/api/economy/sunburst')
         .then(res => res.json())
@@ -148,7 +130,6 @@ function loadEconomySunburst() {
         .catch(err => console.error('Error loading economy sunburst:', err));
 }
 
-// Economy Comparison
 function loadEconomyComparison() {
     fetch('/api/economy/comparison')
         .then(res => res.json())
@@ -175,7 +156,6 @@ function loadCovidTimeseries() {
         .catch(err => console.error('Error loading covid timeseries:', err));
 }
 
-// Add event listeners
 if (document.getElementById('covid-metric')) {
     document.getElementById('covid-metric').addEventListener('change', loadCovidTimeseries);
 }
@@ -183,7 +163,6 @@ if (document.getElementById('covid-show-ma')) {
     document.getElementById('covid-show-ma').addEventListener('change', loadCovidTimeseries);
 }
 
-// COVID Treemap
 function loadCovidTreemap() {
     fetch('/api/covid/treemap')
         .then(res => res.json())

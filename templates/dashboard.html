@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Biểu đồ tương tác{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mb-4"><i class="fas fa-chart-bar"></i> Dashboard Tương Tác</h1>
+    
+    <!-- Stats Overview -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card bg-primary text-white">
+                <i class="fas fa-database"></i>
+                <h3>{{ stats.total_records }}</h3>
+                <p>Tổng bản ghi</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card bg-success text-white">
+                <i class="fas fa-temperature-high"></i>
+                <h3>{{ stats.avg_temp }}°C</h3>
+                <p>Nhiệt độ TB</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card bg-info text-white">
+                <i class="fas fa-tint"></i>
+                <h3>{{ stats.avg_humidity }}%</h3>
+                <p>Độ ẩm TB</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card bg-danger text-white">
+                <i class="fas fa-virus"></i>
+                <h3>{{ stats.total_covid_cases }}</h3>
+                <p>Tổng ca COVID</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 1: Phân phối dữ liệu -->
+    <div class="section-card mb-4">
+        <div class="section-header">
+            <h2><i class="fas fa-chart-area"></i> 1. Phân Phối Dữ Liệu</h2>
+        </div>
+        <div class="section-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label>Chọn biến số:</label>
+                    <select id="distMetric" class="form-select">
+                        <option value="temperature">Nhiệt độ</option>
+                        <option value="humidity">Độ ẩm</option>
+                        <option value="precipitation">Lượng mưa</option>
+                        <option value="wind_speed">Tốc độ gió</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label>Loại biểu đồ:</label>
+                    <select id="distType" class="form-select">
+                        <option value="histogram">Histogram</option>
+                        <option value="box">Boxplot</option>
+                        <option value="violin">Violin Plot</option>
+                    </select>
+                </div>
+            </div>
+            <div id="distributionChart"></div>
+        </div>
+    </div>
+
+    <!-- Section 2: Time Series -->
+    <div class="section-card mb-4">
+        <div class="section-header">
+            <h2><i class="fas fa-chart-line"></i> 2. Xu Hướng Theo Thời Gian</h2>
+        </div>
+        <div class="section-body">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label>Chọn biến số:</label>
+                    <select id="timeMetric" class="form-select">
+                        <option value="temperature">Nhiệt độ</option>
+                        <option value="humidity">Độ ẩm</option>
+                        <option value="precipitation">Lượng mưa</option>
+                        <option value="wind_speed">Tốc độ gió</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label>Từ ngày:</label>
+                    <input type="date" id="startDate" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label>Đến ngày:</label>
+                    <input type="date" id="endDate" class="form-control">
+                </div>
+            </div>
+            <div id="timeseriesChart"></div>
+        </div>
+    </div>
+
+    <!-- Section 3: Scatter + Regression -->
+    <div class="section-card mb-4">
+        <div class="section-header">
+            <h2><i class="fas fa-braille"></i> 3. Phân Tích Tương Quan</h2>
+        </div>
+        <div class="section-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label>Trục X:</label>
+                    <select id="scatterX" class="form-select">
+                        <option value="temperature" selected>Nhiệt độ</option>
+                        <option value="humidity">Độ ẩm</option>
+                        <option value="precipitation">Lượng mưa</option>
+                        <option value="wind_speed">Tốc độ gió</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label>Trục Y:</label>
+                    <select id="scatterY" class="form-select">
+                        <option value="temperature">Nhiệt độ</option>
+                        <option value="humidity" selected>Độ ẩm</option>
+                        <option value="precipitation">Lượng mưa</option>
+                        <option value="wind_speed">Tốc độ gió</option>
+                    </select>
+                </div>
+            </div>
+            <div id="scatterChart"></div>
+        </div>
+    </div>
+
+    <!-- Section 4: Heatmap -->
+    <div class="section-card mb-4">
+        <div class="section-header">
+            <h2><i class="fas fa-th"></i> 4. Ma Trận Tương Quan</h2>
+        </div>
+        <div class="section-body">
+            <div id="heatmapChart"></div>
+        </div>
+    </div>
+
+    <!-- Section 5: Hourly Analysis -->
+    <div class="section-card mb-4">
+        <div class="section-header">
+            <h2><i class="fas fa-clock"></i> 5. Phân Tích Theo Giờ</h2>
+        </div>
+        <div class="section-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label>Chọn biến số:</label>
+                    <select id="hourlyMetric" class="form-select">
+                        <option value="temperature">Nhiệt độ</option>
+                        <option value="humidity">Độ ẩm</option>
+                        <option value="precipitation">Lượng mưa</option>
+                        <option value="wind_speed">Tốc độ gió</option>
+                    </select>
+                </div>
+            </div>
+            <div id="hourlyChart"></div>
+        </div>
+    </div>
+
+    <!-- Section 6: COVID-19 -->
+    <div class="section-card mb-4">
+        <div class="section-header">
+            <h2><i class="fas fa-virus"></i> 6. Phân Tích COVID-19</h2>
+        </div>
+        <div class="section-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label>Chọn chỉ số:</label>
+                    <select id="covidMetric" class="form-select">
+                        <option value="cases">Số ca nhiễm</option>
+                        <option value="deaths">Số ca tử vong</option>
+                        <option value="recovered">Số ca hồi phục</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label>Hiển thị Moving Average:</label>
+                    <div class="form-check form-switch mt-2">
+                        <input class="form-check-input" type="checkbox" id="showMA" checked>
+                        <label class="form-check-label" for="showMA">7-day MA</label>
+                    </div>
+                </div>
+            </div>
+            <div id="covidChart"></div>
+        </div>
+    </div>
+
+    <!-- Section 7: Treemap -->
+    <div class="section-card mb-4">
+        <div class="section-header">
+            <h2><i class="fas fa-sitemap"></i> 7. Treemap COVID-19</h2>
+        </div>
+        <div class="section-body">
+            <div id="treemapChart"></div>
+        </div>
+    </div>
+
+    <!-- Section 8: Sunburst -->
+    <div class="section-card mb-4">
+        <div class="section-header">
+            <h2><i class="fas fa-sun"></i> 8. Sunburst - Phân Bố Nhiệt Độ</h2>
+        </div>
+        <div class="section-body">
+            <div id="sunburstChart"></div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

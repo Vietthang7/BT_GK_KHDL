@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Trang chủ - Dashboard{% endblock %}
+
+{% block content %}
+<div class="hero-section text-center py-5">
+    <div class="container">
+        <h1 class="display-3 fw-bold mb-4">
+            <i class="fas fa-cloud-sun-rain text-primary"></i>
+            Dashboard Phân Tích Dữ Liệu
+        </h1>
+        <p class="lead mb-4">Phân tích thời tiết & COVID-19 với biểu đồ tương tác</p>
+        
+        <div class="row g-4 mt-4" id="statsCards">
+            <!-- Stats sẽ được load bằng JS -->
+        </div>
+        
+        <div class="mt-5">
+            <a href="/dashboard" class="btn btn-primary btn-lg px-5 me-3">
+                <i class="fas fa-chart-line"></i> Xem Dashboard
+            </a>
+            <a href="/report" class="btn btn-outline-primary btn-lg px-5">
+                <i class="fas fa-file-alt"></i> Xem Báo cáo
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="feature-card text-center p-4">
+                <i class="fas fa-database fa-3x text-primary mb-3"></i>
+                <h3>Thu thập dữ liệu</h3>
+                <p>Tự động thu thập từ Open-Meteo API và Disease.sh API</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="feature-card text-center p-4">
+                <i class="fas fa-chart-pie fa-3x text-success mb-3"></i>
+                <h3>8+ loại biểu đồ</h3>
+                <p>Histogram, Scatter, Heatmap, Treemap, Sunburst...</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="feature-card text-center p-4">
+                <i class="fas fa-mouse-pointer fa-3x text-warning mb-3"></i>
+                <h3>Tương tác đầy đủ</h3>
+                <p>Filter, zoom, hover để khám phá dữ liệu chi tiết</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Load statistics
+fetch('/api/stats')
+    .then(response => response.json())
+    .then(data => {
+        const statsHTML = `
+            <div class="col-md-3">
+                <div class="stat-card bg-primary text-white">
+                    <h3>${data.weather.total_records.toLocaleString()}</h3>
+                    <p>Bản ghi thời tiết</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card bg-success text-white">
+                    <h3>${data.weather.avg_temp}°C</h3>
+                    <p>Nhiệt độ trung bình</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card bg-danger text-white">
+                    <h3>${data.covid.total_cases.toLocaleString()}</h3>
+                    <p>Tổng ca COVID-19</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card bg-warning text-white">
+                    <h3>${data.covid.mortality_rate}%</h3>
+                    <p>Tỷ lệ tử vong</p>
+                </div>
+            </div>
+        `;
+        document.getElementById('statsCards').innerHTML = statsHTML;
+    });
+</script>
+{% endblock %}

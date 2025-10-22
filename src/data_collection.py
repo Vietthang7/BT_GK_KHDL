@@ -1,126 +1,174 @@
-import requests
 import pandas as pd
+import numpy as np
 from datetime import datetime, timedelta
+import requests
+import os
 
-def scrape_weather_data():
-    """Thu thập dữ liệu thời tiết từ Open-Meteo Archive API"""
-    print("🌤️ Đang thu thập dữ liệu thời tiết...")
+def collect_economy_data():
+    """Thu thập dữ liệu kinh tế giả lập"""
     
-    # Tính ngày bắt đầu và kết thúc (90 ngày trước đến hôm nay)
-    end_date = datetime.now()
-    start_date = end_date - timedelta(days=90)
+    start_date = datetime(2020, 1, 1)
+    end_date = datetime(2023, 12, 31)
+    dates = pd.date_range(start=start_date, end=end_date, freq='D')
     
-    # Sử dụng Archive API cho dữ liệu lịch sử
-    url = "https://archive-api.open-meteo.com/v1/archive"
+    np.random.seed(42)
     
-    params = {
-        "latitude": 21.0285,  # Hà Nội
-        "longitude": 105.8542,
-        "start_date": start_date.strftime("%Y-%m-%d"),
-        "end_date": end_date.strftime("%Y-%m-%d"),
-        "hourly": ["temperature_2m", "relative_humidity_2m", "precipitation", "wind_speed_10m"],
-        "timezone": "Asia/Bangkok"
-    }
+    # Giả lập dữ liệu kinh tế với xu hướng thực tế
+    base_unemployment = 2.5
+    unemployment_rates = []
+    gdp_growths = []
+    stock_indices = []
+    retail_sales = []
     
-    try:
-        print(f"📡 Gửi request tới: {url}")
-        print(f"📅 Từ {start_date.date()} đến {end_date.date()}")
+    for i, date in enumerate(dates):
+        # Tỷ lệ thất nghiệp tăng trong đại dịch
+        if date.year == 2020:
+            # Tăng mạnh trong 2020
+            unemployment = base_unemployment + (i/100) * 2.5 + np.random.normal(0, 0.3)
+        elif date.year == 2021:
+            # Giảm dần trong 2021
+            unemployment = base_unemployment + 2.5 - (i/300) + np.random.normal(0, 0.3)
+        else:
+            # Ổn định 2022-2023
+            unemployment = base_unemployment + 0.5 + np.random.normal(0, 0.2)
         
-        response = requests.get(url, params=params, timeout=30)
-        response.raise_for_status()
-        data = response.json()
+        unemployment_rates.append(max(1.5, min(8, unemployment)))
         
-        if 'hourly' not in data:
-            print("❌ API không trả về dữ liệu hourly")
-            print(f"Response: {data}")
-            return None
+        # GDP giảm mạnh 2020, hồi phục 2021-2023
+        if date.year == 2020:
+            if date.month <= 6:
+                gdp = -3 + np.random.normal(0, 1)
+            else:
+                gdp = -1 + np.random.normal(0, 1)
+        elif date.year == 2021:
+            gdp = 3 + np.random.normal(0, 1.5)
+        else:
+            gdp = 6.5 + np.random.normal(0, 1)
         
-        df = pd.DataFrame({
-            'timestamp': pd.to_datetime(data['hourly']['time']),
-            'temperature': data['hourly']['temperature_2m'],
-            'humidity': data['hourly']['relative_humidity_2m'],
-            'precipitation': data['hourly']['precipitation'],
-            'wind_speed': data['hourly']['wind_speed_10m']
-        })
+        gdp_growths.append(gdp)
         
-        # Loại bỏ các dòng có tất cả giá trị null
-        df = df.dropna(how='all', subset=['temperature', 'humidity', 'precipitation', 'wind_speed'])
+        # Stock index (VN-Index giả lập: 800-1500)
+        stock_base = 1000
+        if date.year == 2020:
+            # Giảm mạnh Q1-Q2/2020
+            if date.month <= 6:
+                stock = stock_base - 200 + np.random.normal(0, 30)
+            else:
+                stock = stock_base - 100 + np.random.normal(0, 30)
+        elif date.year == 2021:
+            # Tăng trưởng mạnh 2021
+            stock = stock_base + (i/5) + np.random.normal(0, 40)
+        else:
+            # Ổn định cao 2022-2023
+            stock = 1300 + np.random.normal(0, 50)
         
-        # Kiểm tra dữ liệu có hợp lệ không
-        if len(df) == 0:
-            print("❌ Không có dữ liệu sau khi loại bỏ null")
-            return None
+        stock_indices.append(max(700, min(1600, stock)))
         
-        # Kiểm tra xem có giá trị trùng lặp không
-        unique_temps = df['temperature'].nunique()
-        if unique_temps < 10:
-            print(f"⚠️ Cảnh báo: Chỉ có {unique_temps} giá trị nhiệt độ khác nhau - Dữ liệu có thể bị lỗi")
+        # Retail sales (tỷ VND/tháng)
+        retail_base = 50000
+        if date.year == 2020:
+            # Giảm 30-40% trong 2020
+            retail = retail_base * 0.65 + np.random.normal(0, 3000)
+        elif date.year == 2021:
+            # Hồi phục 80% trong 2021
+            retail = retail_base * 0.85 + np.random.normal(0, 4000)
+        else:
+            # Vượt mức trước dịch 2022-2023
+            retail = retail_base * 1.1 + np.random.normal(0, 5000)
         
-        # In thống kê
-        print(f"\n📊 Tổng số bản ghi: {len(df)}")
-        print(f"📊 Khoảng thời gian: {df['timestamp'].min()} đến {df['timestamp'].max()}")
-        print(f"\n📋 Thống kê nhiệt độ:")
-        print(df['temperature'].describe())
-        print(f"\n📋 Số giá trị unique:")
-        print(f"  - Temperature: {df['temperature'].nunique()}")
-        print(f"  - Humidity: {df['humidity'].nunique()}")
-        print(f"  - Precipitation: {df['precipitation'].nunique()}")
-        print(f"  - Wind Speed: {df['wind_speed'].nunique()}")
-        print(f"\n📋 5 dòng đầu tiên:")
-        print(df.head(10))
-        print(f"\n📋 5 dòng cuối cùng:")
-        print(df.tail(10))
-        
-        df.to_csv('data/raw/weather_data.csv', index=False)
-        print(f"\n✅ Đã lưu vào data/raw/weather_data.csv")
-        
-        return df
-        
-    except Exception as e:
-        print(f"❌ Lỗi: {e}")
-        import traceback
-        traceback.print_exc()
-        return None
+        retail_sales.append(max(25000, retail))
+    
+    # Tạo DataFrame
+    economy_df = pd.DataFrame({
+        'date': dates,
+        'unemployment_rate': unemployment_rates,
+        'gdp_growth': gdp_growths,
+        'stock_index': stock_indices,
+        'retail_sales': retail_sales
+    })
+    
+    return economy_df
 
-def scrape_covid_data():
-    """Thu thập dữ liệu COVID-19 từ disease.sh API"""
-    print("\n🦠 Đang thu thập dữ liệu COVID-19...")
-    url = "https://disease.sh/v3/covid-19/historical/all?lastdays=180"
+def collect_covid_data():
+    """Thu thập dữ liệu COVID-19 giả lập"""
     
-    try:
-        response = requests.get(url, timeout=30)
-        response.raise_for_status()
-        data = response.json()
-        
-        df = pd.DataFrame({
-            'date': pd.to_datetime(list(data['cases'].keys()), format='%m/%d/%y'),
-            'cases': list(data['cases'].values()),
-            'deaths': list(data['deaths'].values()),
-            'recovered': list(data['recovered'].values())
-        })
-        
-        df.to_csv('data/raw/covid_data.csv', index=False)
-        print(f"✅ Thu thập thành công {len(df)} bản ghi COVID-19")
-        print(f"\n📋 5 dòng đầu tiên:")
-        print(df.head())
-        
-        return df
+    start_date = datetime(2020, 1, 1)
+    end_date = datetime(2023, 12, 31)
+    dates = pd.date_range(start=start_date, end=end_date, freq='D')
     
-    except Exception as e:
-        print(f"❌ Lỗi: {e}")
-        import traceback
-        traceback.print_exc()
-        return None
+    np.random.seed(42)
+    
+    cases_list = []
+    deaths_list = []
+    recovered_list = []
+    
+    cumulative_cases = 0
+    cumulative_deaths = 0
+    cumulative_recovered = 0
+    
+    for i, date in enumerate(dates):
+        # Mô phỏng các đợt dịch
+        if date.year == 2020:
+            # Đợt đầu: ít ca
+            daily_cases = np.random.poisson(50)
+        elif date.year == 2021:
+            # Đợt 2-3-4: tăng mạnh
+            if date.month <= 4:
+                daily_cases = np.random.poisson(200)
+            elif date.month <= 9:
+                daily_cases = np.random.poisson(8000)  # Đợt Delta
+            else:
+                daily_cases = np.random.poisson(4000)
+        elif date.year == 2022:
+            # Omicron: nhiều ca nhưng giảm dần
+            if date.month <= 3:
+                daily_cases = np.random.poisson(15000)
+            else:
+                daily_cases = np.random.poisson(2000)
+        else:
+            # 2023: ổn định
+            daily_cases = np.random.poisson(500)
+        
+        cumulative_cases += daily_cases
+        
+        # Tử vong: 1-2% số ca
+        daily_deaths = int(daily_cases * np.random.uniform(0.01, 0.02))
+        cumulative_deaths += daily_deaths
+        
+        # Hồi phục: 90-95% số ca (sau 14 ngày)
+        if i > 14:
+            daily_recovered = int(cases_list[i-14] * np.random.uniform(0.90, 0.95))
+            cumulative_recovered += daily_recovered
+        
+        cases_list.append(cumulative_cases)
+        deaths_list.append(cumulative_deaths)
+        recovered_list.append(cumulative_recovered)
+    
+    covid_df = pd.DataFrame({
+        'date': dates,
+        'cases': cases_list,
+        'deaths': deaths_list,
+        'recovered': recovered_list
+    })
+    
+    return covid_df
 
 if __name__ == "__main__":
-    import os
+    print("🔄 Đang thu thập dữ liệu...")
+    
+    # Tạo thư mục nếu chưa có
     os.makedirs('data/raw', exist_ok=True)
-    os.makedirs('data/processed', exist_ok=True)
     
-    weather_df = scrape_weather_data()
-    covid_df = scrape_covid_data()
+    # Thu thập dữ liệu kinh tế
+    print("\n📊 Thu thập dữ liệu kinh tế...")
+    economy_df = collect_economy_data()
+    economy_df.to_csv('data/raw/economy_data.csv', index=False)
+    print(f"✅ Đã lưu {len(economy_df)} bản ghi kinh tế vào data/raw/economy_data.csv")
     
-    if weather_df is not None and covid_df is not None:
-        print("\n✅ Hoàn tất thu thập dữ liệu!")
-    else:
-        print("\n⚠️ Có lỗi xảy ra trong quá trình thu thập")
+    # Thu thập dữ liệu COVID
+    print("\n🦠 Thu thập dữ liệu COVID-19...")
+    covid_df = collect_covid_data()
+    covid_df.to_csv('data/raw/covid_data.csv', index=False)
+    print(f"✅ Đã lưu {len(covid_df)} bản ghi COVID vào data/raw/covid_data.csv")
+    
+    print("\n✨ Hoàn thành thu thập dữ liệu!")

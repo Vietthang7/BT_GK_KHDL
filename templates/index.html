@@ -1,89 +1,123 @@
 {% extends "base.html" %}
 
-{% block title %}Trang chủ - Dashboard{% endblock %}
+{% block title %}Trang chủ - Phân tích COVID-19 & Kinh tế{% endblock %}
 
 {% block content %}
-<div class="hero-section text-center py-5">
+<div class="hero-section">
     <div class="container">
-        <h1 class="display-3 fw-bold mb-4">
-            <i class="fas fa-cloud-sun-rain text-primary"></i>
-            Dashboard Phân Tích Dữ Liệu
-        </h1>
-        <p class="lead mb-4">Phân tích thời tiết & COVID-19 với biểu đồ tương tác</p>
-        
-        <div class="row g-4 mt-4" id="statsCards">
-            <!-- Stats sẽ được load bằng JS -->
-        </div>
-        
-        <div class="mt-5">
-            <a href="/dashboard" class="btn btn-primary btn-lg px-5 me-3">
-                <i class="fas fa-chart-line"></i> Xem Dashboard
-            </a>
-            <a href="/report" class="btn btn-outline-primary btn-lg px-5">
-                <i class="fas fa-file-alt"></i> Xem Báo cáo
-            </a>
-        </div>
-    </div>
-</div>
-
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-md-4 mb-4">
-            <div class="feature-card text-center p-4">
-                <i class="fas fa-database fa-3x text-primary mb-3"></i>
-                <h3>Thu thập dữ liệu</h3>
-                <p>Tự động thu thập từ Open-Meteo API và Disease.sh API</p>
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <i class="fas fa-virus"></i> 
+                Phân tích Tác động COVID-19 đến Kinh tế Việt Nam
+            </h1>
+            <p class="hero-subtitle">
+                Khám phá dữ liệu và insights về tác động của đại dịch COVID-19 đến các chỉ số kinh tế
+            </p>
+            <div class="hero-stats">
+                <div class="stat-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>4 Chỉ số</h3>
+                    <p>Kinh tế chính</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h3>1460 Ngày</h3>
+                    <p>Dữ liệu theo dõi</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-chart-bar"></i>
+                    <h3>10+ Biểu đồ</h3>
+                    <p>Trực quan hóa</p>
+                </div>
             </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="feature-card text-center p-4">
-                <i class="fas fa-chart-pie fa-3x text-success mb-3"></i>
-                <h3>8+ loại biểu đồ</h3>
-                <p>Histogram, Scatter, Heatmap, Treemap, Sunburst...</p>
-            </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="feature-card text-center p-4">
-                <i class="fas fa-mouse-pointer fa-3x text-warning mb-3"></i>
-                <h3>Tương tác đầy đủ</h3>
-                <p>Filter, zoom, hover để khám phá dữ liệu chi tiết</p>
+            <div class="hero-actions">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                    <i class="fas fa-chart-bar"></i> Xem Dashboard
+                </a>
             </div>
         </div>
     </div>
 </div>
 
-<script>
-// Load statistics
-fetch('/api/stats')
-    .then(response => response.json())
-    .then(data => {
-        const statsHTML = `
-            <div class="col-md-3">
-                <div class="stat-card bg-primary text-white">
-                    <h3>${data.weather.total_records.toLocaleString()}</h3>
-                    <p>Bản ghi thời tiết</p>
+<div class="features-section">
+    <div class="container">
+        <h2 class="section-title">Tính năng Phân tích</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
                 </div>
+                <h3>Time Series Analysis</h3>
+                <p>Phân tích xu hướng theo thời gian của các chỉ số kinh tế và COVID-19</p>
             </div>
-            <div class="col-md-3">
-                <div class="stat-card bg-success text-white">
-                    <h3>${data.weather.avg_temp}°C</h3>
-                    <p>Nhiệt độ trung bình</p>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-project-diagram"></i>
                 </div>
+                <h3>Correlation Analysis</h3>
+                <p>Phân tích mối tương quan giữa COVID-19 và các chỉ số kinh tế</p>
             </div>
-            <div class="col-md-3">
-                <div class="stat-card bg-danger text-white">
-                    <h3>${data.covid.total_cases.toLocaleString()}</h3>
-                    <p>Tổng ca COVID-19</p>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-pie"></i>
                 </div>
+                <h3>Distribution Charts</h3>
+                <p>Histogram, Boxplot, Violin Plot phân tích phân phối dữ liệu</p>
             </div>
-            <div class="col-md-3">
-                <div class="stat-card bg-warning text-white">
-                    <h3>${data.covid.mortality_rate}%</h3>
-                    <p>Tỷ lệ tử vong</p>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-fire"></i>
                 </div>
+                <h3>Heatmap Matrix</h3>
+                <p>Ma trận nhiệt thể hiện correlation giữa các biến số</p>
             </div>
-        `;
-        document.getElementById('statsCards').innerHTML = statsHTML;
-    });
-</script>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-circle-notch"></i>
+                </div>
+                <h3>Sunburst Chart</h3>
+                <p>Phân loại tình trạng kinh tế theo quý và trạng thái</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-th"></i>
+                </div>
+                <h3>Treemap Visualization</h3>
+                <p>Trực quan hóa số ca COVID-19 theo tháng</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="metrics-section">
+    <div class="container">
+        <h2 class="section-title">Chỉ số Phân tích</h2>
+        <div class="metrics-grid">
+            <div class="metric-card unemployment">
+                <i class="fas fa-users-slash"></i>
+                <h3>Tỷ lệ Thất nghiệp</h3>
+                <p>Unemployment Rate (%)</p>
+                <span class="metric-badge">Chỉ số chính</span>
+            </div>
+            <div class="metric-card gdp">
+                <i class="fas fa-chart-area"></i>
+                <h3>Tăng trưởng GDP</h3>
+                <p>GDP Growth Rate (%)</p>
+                <span class="metric-badge">Chỉ số chính</span>
+            </div>
+            <div class="metric-card stock">
+                <i class="fas fa-chart-line"></i>
+                <h3>Chỉ số Chứng khoán</h3>
+                <p>VN-Index</p>
+                <span class="metric-badge">Thị trường</span>
+            </div>
+            <div class="metric-card retail">
+                <i class="fas fa-shopping-cart"></i>
+                <h3>Doanh thu Bán lẻ</h3>
+                <p>Retail Sales (tỷ VND)</p>
+                <span class="metric-badge">Tiêu dùng</span>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

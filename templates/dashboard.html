@@ -1,209 +1,188 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - Biểu đồ tương tác{% endblock %}
+{% block title %}Dashboard - Phân tích COVID-19 & Kinh tế{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <h1 class="mb-4"><i class="fas fa-chart-bar"></i> Dashboard Tương Tác</h1>
-    
-    <!-- Stats Overview -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="stat-card bg-primary text-white">
+<div class="dashboard-page">
+    <div class="container">
+        <!-- Header -->
+        <div class="page-header">
+            <h1><i class="fas fa-chart-bar"></i> Dashboard Phân tích</h1>
+            <p>Dữ liệu từ {{ stats.date_range }}</p>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-overview">
+            <div class="stat-box">
                 <i class="fas fa-database"></i>
-                <h3>{{ stats.total_records }}</h3>
-                <p>Tổng bản ghi</p>
+                <div class="stat-content">
+                    <h3>{{ stats.total_records }}</h3>
+                    <p>Tổng bản ghi</p>
+                </div>
+            </div>
+            <div class="stat-box">
+                <i class="fas fa-users-slash"></i>
+                <div class="stat-content">
+                    <h3>{{ stats.avg_unemployment }}%</h3>
+                    <p>TB Thất nghiệp</p>
+                </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card bg-success text-white">
-                <i class="fas fa-temperature-high"></i>
-                <h3>{{ stats.avg_temp }}°C</h3>
-                <p>Nhiệt độ TB</p>
+        <div class="stats-overview">
+            <div class="stat-box">
+                <i class="fas fa-chart-line"></i>
+                <div class="stat-content">
+                    <h3>{{ stats.avg_gdp_growth }}%</h3>
+                    <p>TB Tăng trưởng GDP</p>
+                </div>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stat-card bg-info text-white">
-                <i class="fas fa-tint"></i>
-                <h3>{{ stats.avg_humidity }}%</h3>
-                <p>Độ ẩm TB</p>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stat-card bg-danger text-white">
+            <div class="stat-box">
                 <i class="fas fa-virus"></i>
-                <h3>{{ stats.total_covid_cases }}</h3>
-                <p>Tổng ca COVID</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Section 1: Phân phối dữ liệu -->
-    <div class="section-card mb-4">
-        <div class="section-header">
-            <h2><i class="fas fa-chart-area"></i> 1. Phân Phối Dữ Liệu</h2>
-        </div>
-        <div class="section-body">
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label>Chọn biến số:</label>
-                    <select id="distMetric" class="form-select">
-                        <option value="temperature">Nhiệt độ</option>
-                        <option value="humidity">Độ ẩm</option>
-                        <option value="precipitation">Lượng mưa</option>
-                        <option value="wind_speed">Tốc độ gió</option>
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label>Loại biểu đồ:</label>
-                    <select id="distType" class="form-select">
-                        <option value="histogram">Histogram</option>
-                        <option value="box">Boxplot</option>
-                        <option value="violin">Violin Plot</option>
-                    </select>
+                <div class="stat-content">
+                    <h3>{{ "{:,}".format(stats.total_covid_cases) }}</h3>
+                    <p>Tổng ca COVID</p>
                 </div>
             </div>
-            <div id="distributionChart"></div>
         </div>
-    </div>
 
-    <!-- Section 2: Time Series -->
-    <div class="section-card mb-4">
-        <div class="section-header">
-            <h2><i class="fas fa-chart-line"></i> 2. Xu Hướng Theo Thời Gian</h2>
-        </div>
-        <div class="section-body">
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label>Chọn biến số:</label>
-                    <select id="timeMetric" class="form-select">
-                        <option value="temperature">Nhiệt độ</option>
-                        <option value="humidity">Độ ẩm</option>
-                        <option value="precipitation">Lượng mưa</option>
-                        <option value="wind_speed">Tốc độ gió</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label>Từ ngày:</label>
-                    <input type="date" id="startDate" class="form-control">
-                </div>
-                <div class="col-md-4">
-                    <label>Đến ngày:</label>
-                    <input type="date" id="endDate" class="form-control">
-                </div>
+        <!-- Tabs -->
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="economy">
+                    <i class="fas fa-chart-line"></i> Kinh tế
+                </button>
+                <button class="tab-btn" data-tab="covid">
+                    <i class="fas fa-virus"></i> COVID-19
+                </button>
+                <button class="tab-btn" data-tab="impact">
+                    <i class="fas fa-project-diagram"></i> Tác động
+                </button>
             </div>
-            <div id="timeseriesChart"></div>
         </div>
-    </div>
 
-    <!-- Section 3: Scatter + Regression -->
-    <div class="section-card mb-4">
-        <div class="section-header">
-            <h2><i class="fas fa-braille"></i> 3. Phân Tích Tương Quan</h2>
-        </div>
-        <div class="section-body">
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label>Trục X:</label>
-                    <select id="scatterX" class="form-select">
-                        <option value="temperature" selected>Nhiệt độ</option>
-                        <option value="humidity">Độ ẩm</option>
-                        <option value="precipitation">Lượng mưa</option>
-                        <option value="wind_speed">Tốc độ gió</option>
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label>Trục Y:</label>
-                    <select id="scatterY" class="form-select">
-                        <option value="temperature">Nhiệt độ</option>
-                        <option value="humidity" selected>Độ ẩm</option>
-                        <option value="precipitation">Lượng mưa</option>
-                        <option value="wind_speed">Tốc độ gió</option>
-                    </select>
-                </div>
-            </div>
-            <div id="scatterChart"></div>
-        </div>
-    </div>
-
-    <!-- Section 4: Heatmap -->
-    <div class="section-card mb-4">
-        <div class="section-header">
-            <h2><i class="fas fa-th"></i> 4. Ma Trận Tương Quan</h2>
-        </div>
-        <div class="section-body">
-            <div id="heatmapChart"></div>
-        </div>
-    </div>
-
-    <!-- Section 5: Hourly Analysis -->
-    <div class="section-card mb-4">
-        <div class="section-header">
-            <h2><i class="fas fa-clock"></i> 5. Phân Tích Theo Giờ</h2>
-        </div>
-        <div class="section-body">
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label>Chọn biến số:</label>
-                    <select id="hourlyMetric" class="form-select">
-                        <option value="temperature">Nhiệt độ</option>
-                        <option value="humidity">Độ ẩm</option>
-                        <option value="precipitation">Lượng mưa</option>
-                        <option value="wind_speed">Tốc độ gió</option>
-                    </select>
-                </div>
-            </div>
-            <div id="hourlyChart"></div>
-        </div>
-    </div>
-
-    <!-- Section 6: COVID-19 -->
-    <div class="section-card mb-4">
-        <div class="section-header">
-            <h2><i class="fas fa-virus"></i> 6. Phân Tích COVID-19</h2>
-        </div>
-        <div class="section-body">
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label>Chọn chỉ số:</label>
-                    <select id="covidMetric" class="form-select">
-                        <option value="cases">Số ca nhiễm</option>
-                        <option value="deaths">Số ca tử vong</option>
-                        <option value="recovered">Số ca hồi phục</option>
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label>Hiển thị Moving Average:</label>
-                    <div class="form-check form-switch mt-2">
-                        <input class="form-check-input" type="checkbox" id="showMA" checked>
-                        <label class="form-check-label" for="showMA">7-day MA</label>
+        <!-- Tab: Economy -->
+        <div class="tab-content active" id="economy-tab">
+            <!-- Time Series -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-chart-line"></i> Chỉ số Kinh tế theo Thời gian</h3>
+                    <div class="chart-controls">
+                        <select id="economy-metric">
+                            <option value="unemployment_rate">Tỷ lệ Thất nghiệp</option>
+                            <option value="gdp_growth">Tăng trưởng GDP</option>
+                            <option value="stock_index">Chỉ số Chứng khoán</option>
+                            <option value="retail_sales">Doanh thu Bán lẻ</option>
+                        </select>
                     </div>
                 </div>
+                <div id="economy-timeseries" class="chart-container"></div>
             </div>
-            <div id="covidChart"></div>
-        </div>
-    </div>
 
-    <!-- Section 7: Treemap -->
-    <div class="section-card mb-4">
-        <div class="section-header">
-            <h2><i class="fas fa-sitemap"></i> 7. Treemap COVID-19</h2>
-        </div>
-        <div class="section-body">
-            <div id="treemapChart"></div>
-        </div>
-    </div>
+            <!-- Distribution -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-chart-bar"></i> Phân phối Dữ liệu</h3>
+                    <div class="chart-controls">
+                        <select id="distribution-metric">
+                            <option value="unemployment_rate">Tỷ lệ Thất nghiệp</option>
+                            <option value="gdp_growth">Tăng trưởng GDP</option>
+                            <option value="stock_index">Chỉ số Chứng khoán</option>
+                            <option value="retail_sales">Doanh thu Bán lẻ</option>
+                        </select>
+                        <select id="distribution-type">
+                            <option value="histogram">Histogram</option>
+                            <option value="box">Boxplot</option>
+                            <option value="violin">Violin Plot</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="economy-distribution" class="chart-container"></div>
+            </div>
 
-    <!-- Section 8: Sunburst -->
-    <div class="section-card mb-4">
-        <div class="section-header">
-            <h2><i class="fas fa-sun"></i> 8. Sunburst - Phân Bố Nhiệt Độ</h2>
+            <!-- Heatmap & Sunburst -->
+            <div class="chart-card">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-fire"></i> Ma trận Tương quan</h3>
+                    </div>
+                    <div id="economy-heatmap" class="chart-container"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-circle-notch"></i> Sunburst Chart</h3>
+                    </div>
+                    <div id="economy-sunburst" class="chart-container"></div>
+                </div>
+
+            <!-- Comparison Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-layer-group"></i> So sánh Đa chỉ số</h3>
+                </div>
+                <div id="economy-comparison" class="chart-container"></div>
+            </div>
         </div>
-        <div class="section-body">
-            <div id="sunburstChart"></div>
+
+        <!-- Tab: COVID -->
+        <div class="tab-content" id="covid-tab">
+            <!-- COVID Time Series -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-virus"></i> COVID-19 Time Series</h3>
+                    <div class="chart-controls">
+                        <select id="covid-metric">
+                            <option value="cases">Số ca nhiễm</option>
+                            <option value="deaths">Số ca tử vong</option>
+                            <option value="recovered">Số ca hồi phục</option>
+                        </select>
+                        <label>
+                            <input type="checkbox" id="covid-show-ma" checked>
+                            Hiện Moving Average
+                        </label>
+                    </div>
+                </div>
+                <div id="covid-timeseries" class="chart-container"></div>
+            </div>
+
+            <!-- COVID Treemap -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-th"></i> Treemap - Ca mới theo Tháng</h3>
+                </div>
+                <div id="covid-treemap" class="chart-container"></div>
+            </div>
+        </div>
+
+        <!-- Tab: Impact -->
+        <div class="tab-content" id="impact-tab">
+            <!-- Scatter Plot -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-braille"></i> Scatter Plot - Correlation</h3>
+                    <div class="chart-controls">
+                        <select id="scatter-x">
+                            <option value="unemployment_rate">Tỷ lệ Thất nghiệp</option>
+                            <option value="gdp_growth">Tăng trưởng GDP</option>
+                            <option value="stock_index">Chỉ số Chứng khoán</option>
+                            <option value="retail_sales">Doanh thu Bán lẻ</option>
+                        </select>
+                        <span>vs</span>
+                        <select id="scatter-y">
+                            <option value="cases" selected>Số ca COVID</option>
+                            <option value="deaths">Số ca tử vong</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="economy-scatter" class="chart-container"></div>
+            </div>
+
+            <!-- Impact Analysis -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-project-diagram"></i> Phân tích Tác động COVID → Kinh tế</h3>
+                </div>
+                <div id="impact-analysis" class="chart-container"></div>
+            </div>
         </div>
     </div>
 </div>
-
-<script src="{{ url_for('static', filename='js/main.js') }}"></script>
 {% endblock %}
